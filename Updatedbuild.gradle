@@ -1,0 +1,76 @@
+plugins {
+    alias(libs.plugins.com.wellsfargo.ebssh.orchestraframework)
+    alias(libs.plugins.com.wellsfargo.ebssh.orchestraopenapi)
+    id 'java'
+    id 'org.springframework.boot' version '3.3.1'
+    id 'io.spring.dependency-management' version '1.1.5'
+}
+
+orchestraFramework {
+    applicationId = 'demo1'
+}
+
+orchestraOpenapi {
+    appPackageName = 'com.wellsfargo.orchestra.examples'
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+repositories {
+    mavenCentral()
+    maven {
+        url "https://artifactory.wellsfargo.com/artifactory/maven-external-virtual"
+        credentials {
+            username = findProperty('artifactory_user') ?: 'your-username'
+            password = findProperty('artifactory_password') ?: 'your-password'
+        }
+    }
+}
+
+dependencies {
+    implementation "com.wellsfargo.ebssh.orchestra:loglib-logback-spring-starter"
+    implementation "com.wellsfargo.ebssh.orchestra:orchestra-h2-starter"
+    implementation "com.wellsfargo.ebssh.orchestra:spring-boot-starter-data-jpa"
+    runtimeOnly 'com.h2database:h2'
+
+    implementation "com.wellsfargo.ebssh.orchestra:oauth2-resource-server-web-starter"
+    implementation "com.wellsfargo.ebssh.orchestra:acl-authz-web-starter"
+    implementation "com.wellsfargo.ebssh.orchestra:searose-spring-web-starter"
+    implementation "com.wellsfargo.ebssh.orchestra:framework-spring-web-starter"
+    implementation "com.wellsfargo.ebssh.orchestra:framework-elastic-starter"
+
+    testImplementation "org.springframework.boot:spring-boot-starter-test"
+}
+
+publishing {
+    publications {
+        bootJava(MavenPublication) {
+            artifact bootJar
+        }
+    }
+}
+
+pluginManager.withPlugin('com.jfrog.artifactory') {
+    artifactoryPublish {
+        publications('bootJava')
+    }
+}
+
+sonar {
+    properties {
+        property "sonar.coverage.exclusions", "**/src/main/com/wellsfargo/demo1/api/**,**/bdd/src/test/java/com/wellsfargo/bdd/**"
+        property "sonar.test.exclusions","**/bdd/src/test/java/com/wellsfargo/bdd/**"
+    }
+}
+
+pitest {
+    excludedClasses = ["com.wellsfargo.demo1.myApp.rest.api.*.*"]
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
