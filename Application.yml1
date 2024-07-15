@@ -1,0 +1,117 @@
+# Though additional profiles can be defined, the following are the standard
+# Spring profiles used on the Orchestra Framework:
+# Test: 'test'
+# Local: 'local'
+# Development: 'dev'
+# System Integration Testing: 'sit'
+# User Acceptance Testing: 'uat'
+# Production: 'prod'
+# BCP: 'bcp'
+#
+# IMPORTANT: When developing locally, the 'local' Spring profile should be active.
+spring:
+  profiles:
+    active: local
+    include: "acl-config"
+  cloud:
+    config:
+      enabled: false
+    discovery:
+      client:
+        composite-indicator:
+          enabled: false
+  config:
+    import: "optional:configserver:/"
+  lifecycle:
+    timeout-per-shutdown-phase: 20s
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+      - org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration
+      - org.springframework.boot.actuate.autoconfigure.security.servlet.ManagementWebSecurityAutoConfiguration
+  datasource:
+    url: jdbc:h2:mem:testdb
+    driverClassName: org.h2.Driver
+    username: sa
+    password: password
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+  h2:
+    console:
+      enabled: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "health"
+  endpoint:
+    health:
+      enabled: true
+
+# Resiliency Properties
+resilience4j:
+  circuitbreaker:
+    instances:
+      appTestCircuitBreaker:
+        registerHealthIndicator: true
+        slidingWindowSize: 50
+        permittedNumberOfCallsInHalfOpenState: 3
+        slidingWindowType: COUNT_BASED
+        minimumNumberOfCalls: 10
+        waitDurationInOpenState: 60s
+        failureRateThreshold: 20
+        slowCallRateThreshold: 100
+        slowCallDurationThreshold: 5000
+        event-consumer-buffer-size: 500
+  bulkhead:
+    instances:
+      appTestCircuitBreakerBulkHead:
+        max-concurrent-calls: 20
+        max-wait-duration: 20
+  retry:
+    instances:
+      appTestResilience4JRetryLimit:
+        max-attempts: 4
+        waitDuration: 1000
+
+# Inner source libraries
+wf:
+  application-id: demo1
+  sub-application-id: myapp
+  api:
+    filterExclusionPatterns: /actuator/health,/*.ico,/cloudfoundryapplication/**
+
+searose:
+  secure-http-response-headers: on
+  enableCors: true
+  allowedDomains:
+    - http://wellsfargo.com
+
+security:
+  oauth2:
+    resourceserver:
+      instances:
+        apigee:
+          audience:
+            # The aud claim in the JWT is validated against this value. This should mostly be the
+          issuer-uri: IGTWY
+          jwk-set-uri: https://jwks-service-dev.cfapps.wellsfargo.net/publicKey/getKeys
+          jws-algorithms:
+            - PS256
+          allowed-subjects:
+            - subject1
+          required-claims:
+            - iss
+            - lat
+            - exp
+            - nbf
+            - jti
+
+# Specify the path of the OpenAPI documentation
+springdoc:
+  api-docs:
+    path: /swagger-ui/api-docs
+    enabled: false
+  swagger-ui:
+    path: /swagger-ui/index.html
