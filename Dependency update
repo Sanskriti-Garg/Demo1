@@ -1,0 +1,14 @@
+dependencies {
+    implementation "com.wellsfargo.ebssh.orchestra:loglib-logback-spring-starter"
+    implementation "com.wellsfargo.ebssh.orchestra:orchestra-h2-starter"
+    implementation "org.springframework.boot:spring-boot-starter-data-jpa"  // Correct dependency for Spring Data JPA
+    runtimeOnly 'com.h2database:h2'
+
+    implementation "com.wellsfargo.ebssh.orchestra:oauth2-resource-server-web-starter"
+    implementation "com.wellsfargo.ebssh.orchestra:acl-authz-web-starter"
+    implementation "com.wellsfargo.ebssh.orchestra:searose-spring-web-starter"
+    implementation "com.wellsfargo.ebssh.orchestra:framework-spring-web-starter"
+    implementation "com.wellsfargo.ebssh.orchestra:framework-elastic-starter"
+
+    testImplementation "org.springframework.boot:spring-boot-starter-test"
+}
