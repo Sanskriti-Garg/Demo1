@@ -1,0 +1,69 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Film and FilmActor Tables",
+  "type": "object",
+  "properties": {
+    "Film": {
+      "type": "object",
+      "properties": {
+        "flim_id": {
+          "type": "integer",
+          "nullable": false,
+          "autoincrement": true,
+          "comment": null
+        },
+        "flim_title": {
+          "type": "string",
+          "maxLength": 255,
+          "nullable": false,
+          "default": ""
+        }
+      },
+      "required": ["flim_id", "flim_title"],
+      "primary_key": {
+        "name": "FILM_PK",
+        "constrained_columns": ["flim_id"]
+      },
+      "indexes": []
+    },
+    "FilmActor": {
+      "type": "object",
+      "properties": {
+        "actor_id": {
+          "type": "integer",
+          "nullable": false,
+          "autoincrement": true,
+          "comment": null
+        },
+        "film_name": {
+          "type": "string",
+          "maxLength": 255,
+          "nullable": false,
+          "default": ""
+        },
+        "flim_id": {
+          "type": "integer",
+          "nullable": false,
+          "foreign_key": {
+            "reference_table": "Film",
+            "reference_column": "flim_id"
+          }
+        }
+      },
+      "required": ["actor_id", "film_name", "flim_id"],
+      "primary_key": {
+        "name": "FILM_ACTOR_PK",
+        "constrained_columns": ["actor_id"]
+      },
+      "foreign_keys": [
+        {
+          "name": "FILM_ACTOR_FILM_FK",
+          "column_names": ["flim_id"],
+          "reference_table": "Film",
+          "reference_column": ["flim_id"]
+        }
+      ],
+      "indexes": []
+    }
+  }
+}
