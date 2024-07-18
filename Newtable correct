@@ -1,0 +1,40 @@
+import pyodbc
+
+# Define your database connection details
+server = 'your_server_name'
+database = 'your_database_name'
+username = 'your_username'
+password = 'your_password'
+
+# Establish a connection to the database
+try:
+    conn = pyodbc.connect(f'DRIVER={{ODBC Driver 17 for SQL Server}};SERVER={server};DATABASE={database};UID={username};PWD={password}')
+    cursor = conn.cursor()
+
+    # Create Film table
+    cursor.execute('''
+    CREATE TABLE Film (
+        flim_id int PRIMARY KEY IDENTITY(1,1),
+        flim_title varchar(255) NOT NULL
+    )
+    ''')
+
+    print('Film table created successfully.')
+
+    # Create FilmActor table
+    cursor.execute('''
+    CREATE TABLE FilmActor (
+        actor_id int PRIMARY KEY IDENTITY(1,1),
+        film_name varchar(255) NOT NULL,
+        flim_id int FOREIGN KEY REFERENCES Film(flim_id) NOT NULL
+    )
+    ''')
+
+    print('FilmActor table created successfully.')
+
+    # Commit the transaction and close the connection
+    conn.commit()
+    conn.close()
+
+except Exception as e:
+    print(f'Error: {e}')
