@@ -113,8 +113,19 @@ class StartPage(tk.Frame):
         text_frame = tk.Frame(left_frame)
         text_frame.grid(row=1, column=0, sticky="nsew", padx=(0, 5))
 
-        self.text_area = CustomText(text_frame, wrap=tk.WORD, width=70, height=40, bg="#1e1e1e", fg="#d4d4d4", insertbackground="white")
+        # Create a vertical scrollbar
+        self.text_scrollbar = tk.Scrollbar(text_frame, orient=tk.VERTICAL)
+
+        
+
+        # Create the CustomText widget
+        self.text_area = CustomText(text_frame, wrap=tk.WORD, width=80, height=30, bg="#1e1e1e", fg="#d4d4d4", insertbackground="white", yscrollcommand=self.text_scrollbar.set)
         self.text_area.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+
+        # Link the scrollbar to the CustomText widget
+        self.text_scrollbar.config(command=self.text_area.yview)
+        self.text_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+
         self.text_area.insert(tk.END, "Imported JSON will be shown here.")
         self.text_area.config(state=tk.DISABLED)
 
@@ -167,6 +178,7 @@ class StartPage(tk.Frame):
         self.output_text = tk.StringVar()
         self.output_label = ttk.Label(right_frame, textvariable=self.output_text, font=LARGEFONT, background="#fff")
         self.output_label.place(relx=0.5, rely=0.5, anchor=tk.CENTER)
+
 
     def connect_db(self):
         conn_str = self.conn_entry.get()
@@ -280,7 +292,7 @@ class StartPage(tk.Frame):
                 file.write(schema_text)
             messagebox.showinfo("Download", f"Schema downloaded to: {file_path}")
 
-    
+
     
     def compile_schema(self):
         schema_text = self.text_area.get("1.0", tk.END).strip()
