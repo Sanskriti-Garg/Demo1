@@ -145,7 +145,7 @@ class StartPage(tk.Frame):
         save_btn = tk.Button(btn_frame, text="Save", command=self.save_schema, width=12, height=2)
         save_btn.pack(side=tk.LEFT, padx=5)
 
-        self.generate_btn = tk.Button(btn_frame, text="Generate", command=self.check_and_generate, width=12, height=2, state=tk.DISABLED)
+        self.generate_btn = tk.Button(btn_frame, text="Generate", command=self.check_and_generate, width=12, height=2, state=tk.NORMAL)
         self.generate_btn.pack(side=tk.LEFT, padx=5)
 
         reset_btn = tk.Button(btn_frame, text="Reset", command=self.reset_text, width=12, height=2)
@@ -215,10 +215,7 @@ class StartPage(tk.Frame):
     def update_loading_message(self, message):
         self.loading_label.config(text=message)
 
-    # def display_final_message(self):
-    #     self.progress_bar.stop()
-    #     self.progress_bar.pack_forget()
-    #     self.loading_label.config(text="Data will be shown here")
+    
     def display_final_message(self):
     # Stop and hide the progress bar
         self.progress_bar.stop()
@@ -235,13 +232,24 @@ class StartPage(tk.Frame):
         self.output_text.set("Data will be shown here")
         self.output_label.place(relx=0.5, rely=0.5, anchor=tk.CENTER)
 
+    
+
     def reset_text(self):
+    # Reset the text area on the left
         self.text_area.config(state=tk.NORMAL)
         self.text_area.delete("1.0", tk.END)
-        self.text_area.insert(tk.END, "Imported JSON will be shown here.")
+        self.text_area.insert("1.0", "Imported JSON will be shown here.")
         self.text_area.config(state=tk.DISABLED)
+
+    # Reset the compiled state and generate button
         self.compiled_successfully = False
         self.generate_btn.config(state=tk.DISABLED)
+    
+    # Reset the right pane to its initial state
+        self.initial_label.place(relx=0.5, rely=0.5, anchor=tk.CENTER)
+        self.loading_label.pack_forget()
+        self.output_label.pack_forget()
+        self.output_text.set("Output Screen")
 
     def import_schema(self):
         file_path = filedialog.askopenfilename(filetypes=[("JSON files", "*.json"), ("All files", "*.*")])
@@ -272,105 +280,25 @@ class StartPage(tk.Frame):
                 file.write(schema_text)
             messagebox.showinfo("Download", f"Schema downloaded to: {file_path}")
 
+    
+    
     def compile_schema(self):
         schema_text = self.text_area.get("1.0", tk.END).strip()
-        example_schema = {
-            "type": "object",
-            "properties": {
-                "TableName": {
-                    "type": "object",
-                    "properties": {
-                        "columns": {
-                            "type": "array",
-                            "items": {
-                                "type": "object",
-                                "properties": {
-                                    "name": {"type": "string"},
-                                    "type": {"type": "string"},
-                                    "nullable": {"type": "boolean"},
-                                    "default": {"type": ["string", "null"]},
-                                    "autoincrement": {"type": "boolean"},
-                                    "comment": {"type": ["string", "null"]},
-                                    "identity": {
-                                        "type": ["object", "null"],
-                                        "properties": {
-                                            "start": {"type": "integer"},
-                                            "increment": {"type": "integer"}
-                                        },
-                                        "required": ["start", "increment"]
-                                    }
-                                },
-                                "required": ["name", "type"]
-                            }
-                        },
-                        "primary_keys": {
-                            "type": "object",
-                            "properties": {
-                                "name": {"type": "string"},
-                                "constrained_columns": {
-                                    "type": "array",
-                                    "items": {"type": "string"}
-                                }
-                            },
-                            "required": ["name", "constrained_columns"]
-                        },
-                        "foreign_keys": {
-                            "type": "array",
-                            "items": {
-                                "type": "object",
-                                "properties": {
-                                    "name": {"type": "string"},
-                                    "columns": {
-                                        "type": "array",
-                                        "items": {"type": "string"}
-                                    },
-                                    "referenced_table": {"type": "string"},
-                                    "referenced_columns": {
-                                        "type": "array",
-                                        "items": {"type": "string"}
-                                    }
-                                }
-                            }
-                        },
-                        "indexes": {
-                            "type": "array",
-                            "items": {
-                                "type": "object",
-                                "properties": {
-                                    "name": {"type": "string"},
-                                    "columns": {
-                                        "type": "array",
-                                        "items": {"type": "string"}
-                                    },
-                                    "unique": {"type": "boolean"}
-                                }
-                            }
-                        }
-                    },
-                    "required":
-
- ["columns", "primary_keys"]
-                }
-            },
-            "required": ["TableName"]
-        }
-
-        schema_text = schema_text.rstrip()
         try:
-            schema = json.loads(schema_text)
-            validate(instance=schema, schema=example_schema)
-            messagebox.showinfo("Compile", "JSON schema is valid!")
-            self.is_schema_valid = True
-        except json.JSONDecodeError as e:
-            messagebox.showerror("Compile Error", f"Invalid JSON: {e}")
-            self.is_schema_valid = False
+            json_schema = json.loads(schema_text)
+            validate(instance={}, schema=json_schema)  # Validate an empty instance against the schema
+            self.compiled_successfully = True
+            self.generate_btn.config(state=tk.NORMAL)
+            messagebox.showinfo("Compile", "Json schema compiled successfully.")
+        except json.JSONDecodeError:
+            self.compiled_successfully = False
+            messagebox.showerror("Json compiler error", "Invalid JSON format.")
         except ValidationError as e:
-            messagebox.showerror("Compile Error", f"Schema validation error: {e.message}")
-            self.is_schema_valid = False
+            self.compiled_successfully = False
+            messagebox.showerror("Json compiler error", f"Schema validation error: {e.message}")
         except Exception as e:
-            messagebox.showerror("Compile Error", f"An unexpected error occurred: {e}")
-            self.is_schema_valid = False
-
+            self.compiled_successfully = False
+            messagebox.showerror("Json compiler error", f"Compilation error: {str(e)}")
 
 app = tkinterApp()
 app.mainloop()
