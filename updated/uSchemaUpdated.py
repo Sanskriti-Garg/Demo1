@@ -280,35 +280,7 @@ class StartPage(tk.Frame):
                 file.write(schema_text)
             messagebox.showinfo("Download", f"Schema downloaded to: {file_path}")
 
-    # def compile_schema(self):
-    #     schema_text = self.text_area.get("1.0", tk.END).strip()
-    #     try:
-    #         schema = json.loads(schema_text)
-    #         # Example schema to validate against
-    #         example_schema = {
-    #             "type": "object",
-    #             "properties": {
-    #                 "name": {"type": "string"},
-    #                 "age": {"type": "integer"}
-    #             },
-    #             "required": ["name", "age"]
-    #         }
-    #         validate(instance=schema, schema=example_schema)
-    #         messagebox.showinfo("Compile", "Compiled successfully")
-    #         self.compiled_successfully = True
-    #         self.generate_btn.config(state=tk.NORMAL)
-    #     except json.JSONDecodeError as e:
-    #         messagebox.showerror("Compile Error", f"Invalid JSON: {e}")
-    #         self.compiled_successfully = False
-    #         self.generate_btn.config(state=tk.DISABLED)
-    #     except ValidationError as e:
-    #         messagebox.showerror("Compile Error", f"Schema validation error: {e.message}")
-    #         self.compiled_successfully = False
-    #         self.generate_btn.config(state=tk.DISABLED)
-    #     except Exception as e:
-    #         messagebox.showerror("Compile Error", f"An unexpected error occurred: {e}")
-    #         self.compiled_successfully = False
-    #         self.generate_btn.config(state=tk.DISABLED)
+    
     
     def compile_schema(self):
         schema_text = self.text_area.get("1.0", tk.END).strip()
